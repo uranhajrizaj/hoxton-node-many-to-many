@@ -112,10 +112,12 @@ dropInterviewsTable.run();
 
 const createTableInterviews = db.prepare(`
 CREATE TABLE IF NOT EXISTS interviews(
+     id INTEGER,
     interviewerId INTEGER,
     applicantId INTEGER,
     FOREIGN KEY (applicantId) REFERENCES applicants(id) ON DELETE CASCADE,
-    FOREIGN KEY (interviewerId) REFERENCES interviewers(id)ON DELETE CASCADE
+    FOREIGN KEY (interviewerId) REFERENCES interviewers(id)ON DELETE CASCADE,
+    PRIMARY KEY(id)
 );
 `);
 createTableInterviews.run();

@@ -127,7 +127,6 @@ INSERT INTO interviewers(name,email) VALUES (@name,@email)
 
 
 
-
 app.listen(port, () => {
   console.log(`Server is running on: http://localhost:${port}/applicants`);
 });
