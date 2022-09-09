@@ -81,6 +81,53 @@ app.get("/interviewers/:id", (req, res) => {
   } else res.status(404).send({ error: "Interviewer not found" });
 });
 
+const createApplicant = db.prepare(`
+INSERT INTO applicants(name,email) VALUES (@name,@email)
+`);
+
+app.post("/applicants", (req, res) => {
+    let errors: String[] = [];
+    if (typeof req.body.name !== "string")
+      errors.push(`Name not provided or not a string`);
+    if (typeof req.body.email !== "string")
+      errors.push(`Email not provided or not a string`);
+  
+    if (errors.length === 0) {
+      const info = createApplicant.run(req.body);
+      const newApplicant = applicant.get({ id: info.lastInsertRowid });
+      const applicantInterviewer = getInterviewerForApplicants.all({
+        applicantId: info.lastInsertRowid,
+      });
+      newApplicant.interviewer = applicantInterviewer;
+      res.send(newApplicant)
+    } else res.status(400).send(errors);
+  });
+
+  const createInterviewer = db.prepare(`
+INSERT INTO interviewers(name,email) VALUES (@name,@email)
+`);
+
+  app.post("/interviewers", (req, res) => {
+    let errors: String[] = [];
+    if (typeof req.body.name !== "string")
+    errors.push(`Name not provided or not a string`);
+  if (typeof req.body.email !== "string")
+    errors.push(`Email not provided or not a string`);
+  
+    if (errors.length === 0) {
+      const info = createInterviewer.run(req.body);
+      const newInterviewer = interviewer.get({ id: info.lastInsertRowid });
+      const interviewerApplicants = getApplicantsForInterviewer.all({
+        interviewerId: info.lastInsertRowid,
+      });
+      newInterviewer.applicants = interviewerApplicants;
+      res.send(newInterviewer)
+    } else res.status(400).send(errors);
+  });
+
+
+
+
 app.listen(port, () => {
   console.log(`Server is running on: http://localhost:${port}/applicants`);
 });
